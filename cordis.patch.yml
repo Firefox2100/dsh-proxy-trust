@@ -1,0 +1,5 @@
+# Mounts the plugin under a fixed row id: the id is also the settings namespace the
+# Settings section edits, so do not rename it. Every bypass is off until switched on.
+- insert:
+    - id: proxy-trust
+      name: dsh-proxy-trust
