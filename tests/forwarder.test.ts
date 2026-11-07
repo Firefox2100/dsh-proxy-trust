@@ -134,6 +134,7 @@ describe('Forwarder', () => {
     await forwarder.sync()
     const socket = await connect(forwarder.listening!.port)
     await closed(socket)
+    expect(socket.destroyed).toBe(true)
   })
 
   it('closes the other side when one side ends', async () => {
@@ -142,6 +143,7 @@ describe('Forwarder', () => {
     const socket = await connect(forwarder.listening!.port)
     socket.resume()
     await closed(socket)
+    expect(socket.destroyed).toBe(true)
   })
 
   it('closes open connections on dispose', async () => {

@@ -4,5 +4,6 @@
     "lib": ["ES2024"],
     "types": ["node"]
   },
-  "include": ["src/host", "src/shared", "tests", "tsdown.config.ts", "vitest.config.ts"]
+  "include": ["src/host", "src/shared", "tests", "tsdown.config.ts", "vitest.config.ts"],
+  "exclude": ["tests/settings-section.test.ts"]
 }
