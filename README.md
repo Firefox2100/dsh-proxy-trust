@@ -29,7 +29,7 @@ Most changes take effect as soon as they are saved. Enabling `ownsHost` affects 
 |---|---|
 | `hosts` | Adds host names that browsers use to reach DSH, such as `app.example` or `app.example:8443`. These are combined with any `--trusted-host` values. |
 | `hostsAny` | Accepts any `Host` value. The configured host list is ignored, but DSH's Origin and cross-site checks still run. |
-| `skipAuth` | Stops requiring the DSH launch token and session cookie. The proxy in front of DSH becomes the only login layer. |
+| `skipAuth` | Stops requiring the DSH launch token and session cookie. The URL DSH prints and opens at startup no longer carries a token. The proxy in front of DSH becomes the only login layer. |
 | `crossSiteNavigation` | Allows a cross-site top-level `GET` navigation to `/`, `/index.html`, or `/connect`. Fetch requests, uploads, other paths, and WebSocket upgrades do not qualify. |
 | `crossSiteReferrers` | Limits cross-site navigation to listed origins, such as `https://team.cloudflareaccess.com`. An empty list places no restriction on the referrer. |
 | `ownsHost` | Sets `__DSH_TRANSPORT__.ownsHost` on the page. DSH then exposes features intended for its own machine, such as "Open configuration file," even when the page uses a proxy or network address. |

@@ -37,7 +37,7 @@ function connectRedirect(request: IndexRequest, response: Response): void {
  * Stop asking for the launch token and the session cookie while `enabled()` is true.
  *
  * The connection service reaches authentication through one object with five
- * methods. That object is wrapped by a Proxy that answers four of them itself
+ * methods. That object is wrapped by a Proxy that answers all five of them itself
  * while the switch is on and delegates everything otherwise, so a toggle needs
  * no reload. The Host fence still runs before authentication on `/api` and
  * `/connect`.
@@ -60,6 +60,8 @@ export function installSkipAuth(svc: ConnectionInternals, enabled: () => boolean
       if (enabled()) {
         if (property === 'isAuthenticated' || property === 'authorizeIndex') return () => true
         if (property === 'authenticateApi') return () => undefined
+        // Nothing consumes a launch token now, so the printed/opened URL carries none.
+        if (property === 'authenticatedUrl') return (baseUrl: string) => baseUrl
         if (property === 'authorizeConnect') return connectRedirect
       }
       const value = Reflect.get(target, property, target) as unknown

@@ -33,6 +33,7 @@ describe('installSkipAuth', () => {
     expect(wrapped.isAuthenticated({ headers: {} })).toBe(true)
     expect(wrapped.authorizeIndex({ headers: {} })).toBe(true)
     expect(wrapped.authenticateApi({ headers: {} })).toBeUndefined()
+    expect(wrapped.authenticatedUrl('http://x/')).toBe('http://x/')
     expect(real.authorizeConnect).not.toHaveBeenCalled()
   })
   it('redirects /connect to the mux without a cookie', () => {
