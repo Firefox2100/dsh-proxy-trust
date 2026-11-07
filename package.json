@@ -1,7 +1,7 @@
 {
   "name": "dsh-proxy-trust",
   "version": "0.1.0",
-  "description": "DeepSeek Harness plugin that makes the Web UI usable behind a reverse proxy: trusted hosts from configuration, optional login skip and cross-site navigation, each switched on separately.",
+  "description": "Run the DeepSeek Harness Web UI behind an authenticating reverse proxy, with separate controls for hosts, login, cross-site navigation, and network listening.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -37,13 +37,15 @@
     "lib/client.js.map",
     "cordis.patch.yml",
     "README.md",
+    "README.zh.md",
     "LICENSE"
   ],
   "scripts": {
     "build": "tsdown",
     "watch": "tsdown --watch",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.client.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
     "@deepseek-ai/dsh": ">=0.2.2-rc.1 <0.3.0",
@@ -63,6 +65,7 @@
     "@deepseek-ai/schemastery": "^3.18.5",
     "@types/node": "^22.20.0",
     "@types/react": "~18.3.31",
+    "@vitest/coverage-v8": "^4.1.12",
     "lightningcss": "^1.33.0",
     "react": "^18.3.1",
     "tsdown": "^0.22.2",

@@ -1,5 +1,14 @@
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  test: { include: ['tests/**/*.test.ts'] },
+  test: {
+    include: ['tests/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/client/css-modules.d.ts'],
+    },
+  },
 })

@@ -1,9 +1,17 @@
 # dsh-proxy-trust
 
-A plugin for DeepSeek Harness (DSH) 0.2.2 that lets the Web UI be reached through a reverse proxy,
-for example one that signs users in before forwarding (Cloudflare Access). The plugin stays enabled;
-every bypass is a separate switch, all off by default, edited in **Settings → Reverse proxy** or in the
-profile's `cordis.patch.yml`. Changes apply to the next request, with no restart.
+[简体中文](README.zh.md)
+
+`dsh-proxy-trust` lets the DeepSeek Harness (DSH) Web UI run behind a reverse proxy. It is intended for deployments where the proxy handles access, such as Cloudflare Access, and DSH remains bound to a private or loopback address.
+
+The plugin does not replace DSH's connection service. It changes a small set of checks in the running service, and each change has its own setting. Everything is off by default.
+
+Settings are available under `Settings > Reverse proxy`. You can also edit the plugin entry in the profile's `cordis.patch.yml`.
+
+## Requirements
+
+- DSH `>=0.2.2-rc.1 <0.3.0`
+- Node.js 22 or later
 
 ## Install
 
@@ -11,64 +19,90 @@ profile's `cordis.patch.yml`. Changes apply to the next request, with no restart
 dsh plugin --profile web add dsh-proxy-trust
 ```
 
-Start the web profile as usual (`--trusted-host` still works and is added to the configured list).
+Start the web profile as usual. Values passed with `--trusted-host` continue to work and are combined with the hosts configured by this plugin.
 
-## What it can switch off
+## Configuration
 
-| Setting | Effect |
+Most changes take effect as soon as they are saved. Enabling `ownsHost` affects the next page load, while changing the extra listener may close and reopen its port.
+
+| Setting | What it does |
 |---|---|
-| `hosts` | Host names the browser uses (`app.example`, `app.example:8443`), accepted next to any `--trusted-host`. |
-| `hostsAny` | Accept any `Host`. The host list is ignored. The cross-site and origin checks still run. |
-| `skipAuth` | Do not ask for the launch token or session cookie. |
-| `crossSiteNavigation` | Accept a cross-site top-level page load (the redirect back from an access proxy). Only `GET` page loads of `/`, `/index.html` and `/connect` qualify; fetches, uploads and WebSocket upgrades never do. |
-| `crossSiteReferrers` | Optional origins (`https://team.cloudflareaccess.com`) a cross-site page load must come from. |
-| `ownsHost` | Tell the browser the page is local (`__DSH_TRANSPORT__.ownsHost`), so features meant for the machine itself, such as "Open configuration file", appear when the page is opened through a proxy or a network address. Applies on the next page load. |
+| `hosts` | Adds host names that browsers use to reach DSH, such as `app.example` or `app.example:8443`. These are combined with any `--trusted-host` values. |
+| `hostsAny` | Accepts any `Host` value. The configured host list is ignored, but DSH's Origin and cross-site checks still run. |
+| `skipAuth` | Stops requiring the DSH launch token and session cookie. The proxy in front of DSH becomes the only login layer. |
+| `crossSiteNavigation` | Allows a cross-site top-level `GET` navigation to `/`, `/index.html`, or `/connect`. Fetch requests, uploads, other paths, and WebSocket upgrades do not qualify. |
+| `crossSiteReferrers` | Limits cross-site navigation to listed origins, such as `https://team.cloudflareaccess.com`. An empty list places no restriction on the referrer. |
+| `ownsHost` | Sets `__DSH_TRANSPORT__.ownsHost` on the page. DSH then exposes features intended for its own machine, such as "Open configuration file," even when the page uses a proxy or network address. |
+| `listenEnabled` | Opens a second TCP listener and forwards its connections to DSH's listener. This provides wildcard or network binding without changing DSH's own bind address. |
+| `listenAddress` | Sets the address for the extra listener. Empty or `0.0.0.0` means every IPv4 interface; use `::` for IPv6. |
+| `listenPort` | Sets the extra listener's port. The default is `3081`, and it must differ from DSH's port. |
+| `listenAllow` | Lists the client IP addresses or CIDR ranges allowed to use the extra listener. An empty list allows every client that can reach the port. A non-empty list with no valid entry allows nobody. |
 
-| `listenEnabled` | Also listen on another address and hand every connection to DSH's own listener. DSH refuses to bind `0.0.0.0` itself, so this is how to reach it on every interface. |
-| `listenAddress` | Address of the extra listener. Empty or `0.0.0.0` means every IPv4 interface; `::` for IPv6. |
-| `listenPort` | Port of the extra listener (default 3081). It cannot share the port DSH listens on. |
-| `listenAllow` | Optional peers (`192.168.1.0/24`, `100.64.0.0/10`, single addresses) allowed to connect; empty allows everyone who can reach the port. A list with no valid entry allows no one. |
+The same settings can be written in the profile patch:
 
 ```yaml
 # $DSH_HOME/profiles/<name>/cordis.patch.yml
 - id: proxy-trust
   name: dsh-proxy-trust
   config:
-    hosts: [app.example]
+    hosts:
+      - app.example
     skipAuth: true
 ```
 
-## Extra listener
+Do not change the row ID. `proxy-trust` is also the settings namespace used by the plugin's UI.
 
-The listener is a plain TCP forwarder inside the DSH process; it needs no changes to DSH. Host, Origin,
-token and cookie checks run exactly as on a direct connection, and TLS passes through untouched. Things to
-know:
+## Using the extra listener
 
-- DSH sees every forwarded connection as coming from `127.0.0.1`. DSH 0.2.2 never reads the peer address,
-  so behavior is unchanged, but its logs and any plugin that reads the address lose the real client. The
-  plugin logs refused connections with their real address.
-- With a listener beyond loopback, a remote client can send `Host: localhost`, so the host check no longer
-  keeps strangers out. Use the allowlist, a firewall, or a proxy that authenticates visitors.
-- A taken port, an invalid address or a missing permission is logged and leaves DSH running.
-- At most 512 connections at a time. Open the port in your firewall or container mapping.
+DSH 0.2.2 refuses wildcard bind addresses such as `0.0.0.0`. The optional listener works around that restriction with a plain TCP forwarder inside the DSH process. It passes HTTP, WebSocket, and TLS traffic through without interpreting it, so DSH still performs its normal Host, Origin, token, and cookie checks.
+
+There are a few consequences:
+
+- DSH sees forwarded connections as coming from its own listener, usually `127.0.0.1`. The plugin still uses the real client address for `listenAllow` and refusal logs.
+- A remote client can send `Host: localhost` through a listener exposed beyond loopback. The Host check alone is therefore not an access boundary. Use `listenAllow`, a firewall, or an authenticating proxy.
+- The listener accepts up to 512 simultaneous connections.
+- An invalid address, a port already in use, or a missing bind permission produces a warning. DSH itself keeps running.
+- Firewall rules and container port mappings remain your responsibility.
+
+Example with a peer allowlist:
+
+```yaml
+- id: proxy-trust
+  name: dsh-proxy-trust
+  config:
+    listenEnabled: true
+    listenAddress: 0.0.0.0
+    listenPort: 3081
+    listenAllow:
+      - 100.64.0.0/10
+      - 192.168.1.0/24
+    hosts:
+      - dsh.example.com
+```
 
 ## Security
 
-With `skipAuth` on and a trusted host (or `hostsAny`) set, anyone who can reach the instance is signed
-in. The Settings page shows a warning in that state and the plugin logs one at startup. DSH has no
-password of its own: the proxy in front must authenticate every visitor, and the listening port should
-only be reachable from that proxy.
+`skipAuth` removes DSH's browser login check. Anyone who can reach an accepted host is treated as signed in. When the plugin detects that login is skipped and the instance is reachable beyond localhost, it shows a warning in Settings and writes a warning to the DSH log.
 
-## How it works, and its limits
+For a remotely reachable deployment, use `skipAuth` only when every route to the instance passes through a proxy that authenticates users. Restrict the listener so clients cannot bypass that proxy. A loopback-only instance can use the option without becoming remotely accessible. If DSH's token login is still useful in your deployment, leave `skipAuth` off and use the other settings independently.
 
-The plugin overrides members of DSH's connection service in the running process (the accepted host list,
-the browser-auth object and the trust check). They are not public API, so each hook checks the shape it
-needs and stays inactive, with a warning, when a release changes it. Unloading the plugin restores the
-originals. Supported: DSH `>=0.2.2-rc.1 <0.3.0`.
+`crossSiteNavigation` is deliberately narrow. It only relaxes DSH's cross-site marker for a document navigation on the three listed paths. The original Host and Origin checks still decide whether the request is trusted.
+
+## Compatibility
+
+The plugin wraps private members of DSH's connection service: the trusted-host list, browser authentication object, and request trust method. Those members are not part of DSH's public plugin API.
+
+Each hook checks the runtime shape before installing. If a DSH update changes an expected member, that feature stays off and the plugin logs a warning instead of stopping DSH. Unloading the plugin restores the original objects and methods.
+
+The package currently supports DSH `>=0.2.2-rc.1 <0.3.0`.
 
 ## Development
 
 ```sh
 pnpm install
-pnpm typecheck && pnpm test && pnpm build
+pnpm typecheck
+pnpm test
+pnpm build
 ```
+
+The socket tests open loopback listeners and need an environment that permits local network binding.
