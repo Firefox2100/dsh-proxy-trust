@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Confiance du proxy",
+    "description": "Exécute l’interface Web de DSH derrière un proxy inverse avec authentification et permet de régler séparément la confiance des hôtes, la connexion, la navigation intersite et les écouteurs réseau."
+  }
+}

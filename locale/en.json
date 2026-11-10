@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Proxy Trust",
+    "description": "Run the DSH Web UI behind an authenticating reverse proxy, with separate controls for host trust, login, cross-site navigation, and network listeners."
+  }
+}

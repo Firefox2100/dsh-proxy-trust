@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Confiança do proxy",
+    "description": "Executa a interface Web do DSH atrás de um proxy reverso com autenticação e permite controlar separadamente a confiança de hosts, o login, a navegação entre sites e os listeners de rede."
+  }
+}

@@ -9,6 +9,7 @@ import { isLoopbackAddress, normalizeBindAddress, DEFAULT_LISTEN_ADDRESS } from 
 import { Forwarder } from './forwarder.ts'
 import { Config } from './config.ts'
 import { installCrossSite } from './hooks/cross-site.ts'
+import { installPeerGate, PEER_GATE_UNAVAILABLE } from './hooks/peers.ts'
 import { installHosts } from './hooks/hosts.ts'
 import { installSkipAuth } from './hooks/skip-auth.ts'
 import type { ConnectionInternals } from './hooks/shape.ts'
@@ -88,6 +89,23 @@ export function apply(ctx: Context, config: Config): void {
   })
 
   ctx.inject(['webServer'], (w) => {
+    const warnPeer = (message: string): void => {
+      w.logger.warn(`dsh-proxy-trust: ${message}`)
+      console.warn(`dsh-proxy-trust: ${message}`)
+    }
+    const uninstallGate = installPeerGate(w.webServer, { allow: () => config.peerAllow.get(), warn: warnPeer })
+    if (uninstallGate !== undefined) w.effect(() => uninstallGate, 'dsh-proxy-trust: peer allowlist')
+    else {
+      // Say so once an allowlist is set that cannot be enforced; silence would read as protection.
+      let said = false
+      const check = (): void => {
+        if (said || config.peerAllow.get().length === 0) return
+        said = true
+        warnPeer(PEER_GATE_UNAVAILABLE)
+      }
+      check()
+      w.effect(() => subscribe(check), 'dsh-proxy-trust: peer allowlist notice')
+    }
     const forwarder = new Forwarder({
       settings: () => ({
         enabled: config.listenEnabled.get(),

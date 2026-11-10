@@ -20,6 +20,8 @@ export interface Config {
   crossSiteReferrers: Volatile<string[]>
   /** Tell the browser this page runs on the machine that owns the instance, unlocking features meant for local use. */
   ownsHost: Volatile<boolean>
+  /** When non-empty, only these peers (addresses or CIDR ranges) may connect to DSH's own listener. */
+  peerAllow: Volatile<string[]>
   /** Also listen on `listenAddress:listenPort` and forward every connection to DSH's own listener. */
   listenEnabled: Volatile<boolean>
   /** Address the extra listener binds; `0.0.0.0` (every IPv4 interface) when empty. */
@@ -37,6 +39,7 @@ export const Config = z.object({
   crossSiteNavigation: z.boolean().default(false).volatile(),
   crossSiteReferrers: z.array(String).default([]).volatile(),
   ownsHost: z.boolean().default(false).volatile(),
+  peerAllow: z.array(String).default([]).volatile(),
   listenEnabled: z.boolean().default(false).volatile(),
   listenAddress: z.string().default(DEFAULT_LISTEN_ADDRESS).volatile(),
   listenPort: z.natural().max(65535).default(DEFAULT_LISTEN_PORT).volatile(),

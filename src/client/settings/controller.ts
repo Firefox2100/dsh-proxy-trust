@@ -8,7 +8,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import { EXPOSURE_GLOBAL, type ProxyTrustExposure } from '../../shared/ids.ts'
 import { DEFAULT_LISTEN_ADDRESS, isLoopbackAddress, normalizeBindAddress } from '../../shared/net.ts'
-import { hostsField, listenAddressField, listenAllowField, listenPortField, referrersField, switchField, type ProxyTrustSettings } from './fields.ts'
+import { hostsField, listenAddressField, listenAllowField, listenPortField, peerAllowField, referrersField, switchField, type ProxyTrustSettings } from './fields.ts'
 
 export interface ProxyTrustSettingsState extends SettingsFormShell {
   hostsAny: SettingsFieldState
@@ -21,6 +21,7 @@ export interface ProxyTrustSettingsState extends SettingsFormShell {
   listenAddress: SettingsFieldState
   listenPort: SettingsFieldState
   listenAllow: SettingsFieldState
+  peerAllow: SettingsFieldState
   /** Authorities accepted because of `--trusted-host`; read-only here. */
   cliHosts: readonly string[]
   /** Whether, as staged, the instance accepts requests for hosts other than localhost. */
@@ -57,6 +58,7 @@ export class ProxyTrustSettingsController {
       listenAddressField,
       listenPortField,
       listenAllowField,
+      peerAllowField,
     ])
     this.store = this.form.bind(() => {
       const hostsAny = this.form.field('hostsAny')
@@ -79,6 +81,7 @@ export class ProxyTrustSettingsController {
         listenAddress,
         listenPort: this.form.field('listenPort'),
         listenAllow: this.form.field('listenAllow'),
+        peerAllow: this.form.field('peerAllow'),
         cliHosts,
         exposed: hostsAny.text === 'true' || hosts.text.trim() !== '' || cliHosts.length > 0 || listensBeyondLoopback,
       }

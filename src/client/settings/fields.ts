@@ -10,6 +10,7 @@ export interface ProxyTrustSettings {
   crossSiteNavigation?: boolean
   crossSiteReferrers?: string[]
   ownsHost?: boolean
+  peerAllow?: string[]
   listenEnabled?: boolean
   listenAddress?: string
   listenPort?: number
@@ -79,3 +80,5 @@ export const listenPortField: SettingsFieldSpec = {
 }
 
 export const listenAllowField = listField('listenAllow', normalizeCidr)
+
+export const peerAllowField = listField('peerAllow', normalizeCidr)

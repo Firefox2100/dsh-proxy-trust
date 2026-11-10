@@ -10,7 +10,7 @@ function mount(overrides: Record<string, unknown> = {}) {
   const config = {
     hostsAny: volatile(false), hosts: volatile<string[]>([]), skipAuth: volatile(false),
     crossSiteNavigation: volatile(false), crossSiteReferrers: volatile<string[]>([]), ownsHost: volatile(false),
-    listenEnabled: volatile(false), listenAddress: volatile('0.0.0.0'), listenPort: volatile(3081), listenAllow: volatile<string[]>([]),
+    listenEnabled: volatile(false), listenAddress: volatile('0.0.0.0'), listenPort: volatile(3081), listenAllow: volatile<string[]>([]), peerAllow: volatile<string[]>([]),
     ...overrides,
   }
   const web = {

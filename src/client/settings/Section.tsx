@@ -31,7 +31,7 @@ export function ProxyTrustSection(props: ProxyTrustSectionProps) {
   const locked = !state.writable
   const skipping = state.skipAuth.text === 'true'
   const flag = (field: string) => (next: boolean): void => { props.edit(field, next ? 'true' : 'false') }
-  const field = (id: string, label: SettingsLocaleKey, hint: SettingsLocaleKey, placeholder: SettingsLocaleKey, name: 'hosts' | 'crossSiteReferrers' | 'listenAddress' | 'listenPort' | 'listenAllow', disabled: boolean, numeric = false) => (
+  const field = (id: string, label: SettingsLocaleKey, hint: SettingsLocaleKey, placeholder: SettingsLocaleKey, name: 'hosts' | 'crossSiteReferrers' | 'listenAddress' | 'listenPort' | 'listenAllow' | 'peerAllow', disabled: boolean, numeric = false) => (
     <SettingsValueField
       id={id}
       label={t(label)}
@@ -76,6 +76,10 @@ export function ProxyTrustSection(props: ProxyTrustSectionProps) {
               </div>
             )
             : null}
+        </section>
+        <section className={css.group} aria-labelledby="proxy-trust-peers-heading">
+          <h3 className={css.heading} id="proxy-trust-peers-heading">{t('peersTitle')}</h3>
+          {field('proxy-trust-peer-allow', 'peerAllow', 'peerAllowHint', 'peerAllowPlaceholder', 'peerAllow', locked)}
         </section>
         <section className={css.group} aria-labelledby="proxy-trust-listener-heading">
           <h3 className={css.heading} id="proxy-trust-listener-heading">{t('listenTitle')}</h3>

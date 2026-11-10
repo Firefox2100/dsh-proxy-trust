@@ -37,6 +37,7 @@ Most changes take effect as soon as they are saved. Enabling `ownsHost` affects 
 | `listenAddress` | Sets the address for the extra listener. Empty or `0.0.0.0` means every IPv4 interface; use `::` for IPv6. |
 | `listenPort` | Sets the extra listener's port. The default is `3081`, and it must differ from DSH's port. |
 | `listenAllow` | Lists the client IP addresses or CIDR ranges allowed to use the extra listener. An empty list allows every client that can reach the port. A non-empty list with no valid entry allows nobody. |
+| `peerAllow` | Lists the client IP addresses or CIDR ranges allowed to connect to DSH's own listener. The check uses the real connection address, so no header can forge it, and it covers every route. An empty list turns it off. A non-empty list with no valid entry allows nobody. Applies to new connections. Behind the extra listener DSH sees the listener (loopback) as the client, so restrict that with `listenAllow` instead. |
 
 The same settings can be written in the profile patch:
 

@@ -1,0 +1,19 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Proxy Trust</title>
+  <desc id="desc">A connection passing through a controlled proxy gateway.</desc>
+  <path d="M12 28V12.5C12 10.0147 14.0147 8 16.5 8H19.5C21.9853 8 24 10.0147 24 12.5V28H20.5V14C20.5 12.8954 19.6046 12 18.5 12H17.5C16.3954 12 15.5 12.8954 15.5 14V28H12Z" fill="url(#gateway)"/>
+  <path d="M5 20H27.5" stroke="url(#route)" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M26.5 16.5L30 20L26.5 23.5" stroke="#45D9E7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="6" cy="20" r="3" fill="#86B8F5"/>
+  <circle cx="18" cy="20" r="2.75" fill="#FFFFFF" stroke="#5269E1" stroke-width="1.5"/>
+  <defs>
+    <linearGradient id="gateway" x1="12" y1="8" x2="25.5" y2="26.5" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#86B8F5"/>
+      <stop offset="1" stop-color="#5269E1"/>
+    </linearGradient>
+    <linearGradient id="route" x1="5" y1="20" x2="29" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67C7FE"/>
+      <stop offset="1" stop-color="#45D9E7"/>
+    </linearGradient>
+  </defs>
+</svg>

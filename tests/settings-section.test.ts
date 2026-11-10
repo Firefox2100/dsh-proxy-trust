@@ -29,6 +29,7 @@ function state(overrides: Record<string, unknown> = {}) {
     listenAddress: field(),
     listenPort: field(),
     listenAllow: field(),
+    peerAllow: field(),
     cliHosts: [],
     exposed: false,
     ...overrides,

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Proxy-Vertrauen",
+    "description": "Betreibt die DSH-Weboberfläche hinter einem authentifizierenden Reverse-Proxy und steuert Host-Vertrauen, Anmeldung, websiteübergreifende Navigation und Netzwerk-Listener getrennt."
+  }
+}
