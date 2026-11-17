@@ -1,5 +1,5 @@
 overrides:
-  '@deepseek-ai/dsh': 0.2.2-rc.1
+  '@deepseek-ai/dsh': 0.2.2-rc.3
   '@deepseek-ai/cordis': 4.0.5
   '@deepseek-ai/schemastery': 3.18.5
   '@deepseek-ai/cordis-plugin-loader': 1.0.6

@@ -1,4 +1,4 @@
-import { SettingsForm, SettingsValueField, Switch } from '@deepseek-ai/dsh-client-ui-primitives'
+import { SettingsForm, SettingsValueField, Switch } from './primitives.ts'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import { formLabels, type SettingsLocaleKey } from './locales.ts'
 import type { ProxyTrustSettingsFace } from './controller.ts'

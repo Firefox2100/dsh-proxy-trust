@@ -1,4 +1,4 @@
-import type { SettingsFormLabels } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { SettingsFormLabels } from './primitives.ts'
 import type { Dictionaries } from '../i18n.ts'
 
 export type SettingsLocaleKey =
@@ -11,7 +11,7 @@ export type SettingsLocaleKey =
   | 'pageTitle' | 'ownsHost' | 'ownsHostHint'
   | 'warningTitle' | 'warningBody'
   | 'overridden' | 'reset' | 'invalid'
-  | 'readOnly' | 'unavailable' | 'save' | 'saving' | 'saveFailed'
+  | 'readOnly' | 'unavailable' | 'crashed' | 'save' | 'saving' | 'saveFailed'
 
 export const dictionaries: Dictionaries<SettingsLocaleKey> = {
   en: {
@@ -60,6 +60,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'This is not a valid value.',
     readOnly: 'The settings document is read-only.',
     unavailable: 'These settings are not available.',
+    crashed: 'The reverse proxy settings could not be displayed. Reload the page to try again.',
     save: 'Save',
     saving: 'Saving…',
     saveFailed: 'The change was not saved.',
@@ -110,6 +111,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: '这不是有效的值。',
     readOnly: '设置文档为只读。',
     unavailable: '这些设置当前不可用。',
+    crashed: '反向代理设置无法显示。请刷新页面重试。',
     save: '保存',
     saving: '正在保存…',
     saveFailed: '修改未能保存。',
@@ -160,6 +162,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: '有効な値ではありません。',
     readOnly: '設定ドキュメントは読み取り専用です。',
     unavailable: 'これらの設定は利用できません。',
+    crashed: 'リバースプロキシの設定を表示できませんでした。ページを再読み込みしてください。',
     save: '保存',
     saving: '保存中…',
     saveFailed: '変更を保存できませんでした。',
@@ -210,6 +213,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'Este valor no es válido.',
     readOnly: 'El documento de configuración es de solo lectura.',
     unavailable: 'Esta configuración no está disponible.',
+    crashed: 'No se pudo mostrar la configuración del proxy inverso. Recarga la página para intentarlo de nuevo.',
     save: 'Guardar',
     saving: 'Guardando…',
     saveFailed: 'No se pudo guardar el cambio.',
@@ -260,6 +264,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'Cette valeur n’est pas valide.',
     readOnly: 'Le document de configuration est en lecture seule.',
     unavailable: 'Ces paramètres ne sont pas disponibles.',
+    crashed: 'Impossible d\'afficher les réglages du proxy inverse. Rechargez la page pour réessayer.',
     save: 'Enregistrer',
     saving: 'Enregistrement…',
     saveFailed: 'La modification n’a pas été enregistrée.',
@@ -310,6 +315,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'Dieser Wert ist ungültig.',
     readOnly: 'Das Einstellungsdokument ist schreibgeschützt.',
     unavailable: 'Diese Einstellungen sind nicht verfügbar.',
+    crashed: 'Die Einstellungen für den Reverse-Proxy konnten nicht angezeigt werden. Lade die Seite neu, um es erneut zu versuchen.',
     save: 'Speichern',
     saving: 'Wird gespeichert…',
     saveFailed: 'Die Änderung wurde nicht gespeichert.',
@@ -360,6 +366,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'Недопустимое значение.',
     readOnly: 'Документ настроек доступен только для чтения.',
     unavailable: 'Эти настройки недоступны.',
+    crashed: 'Не удалось показать настройки обратного прокси. Перезагрузите страницу и попробуйте снова.',
     save: 'Сохранить',
     saving: 'Сохранение…',
     saveFailed: 'Не удалось сохранить изменение.',
@@ -410,6 +417,7 @@ export const dictionaries: Dictionaries<SettingsLocaleKey> = {
     invalid: 'Este valor não é válido.',
     readOnly: 'O documento de configurações é somente leitura.',
     unavailable: 'Estas configurações não estão disponíveis.',
+    crashed: 'Não foi possível mostrar as configurações do proxy reverso. Recarregue a página para tentar novamente.',
     save: 'Salvar',
     saving: 'Salvando…',
     saveFailed: 'A alteração não foi salva.',

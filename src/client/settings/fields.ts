@@ -1,4 +1,4 @@
-import type { SettingsFieldSpec } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { SettingsFieldSpec } from './primitives.ts'
 import { normalizeAuthority, normalizeOrigin, splitEntries } from '../../shared/authority.ts'
 import { normalizeBindAddress, normalizeCidr } from '../../shared/net.ts'
 

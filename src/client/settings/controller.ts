@@ -5,7 +5,7 @@ import {
   type SettingsFormActions,
   type SettingsFormScope,
   type SettingsFormShell,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from './primitives.ts'
 import { EXPOSURE_GLOBAL, type ProxyTrustExposure } from '../../shared/ids.ts'
 import { DEFAULT_LISTEN_ADDRESS, isLoopbackAddress, normalizeBindAddress } from '../../shared/net.ts'
 import { hostsField, listenAddressField, listenAllowField, listenPortField, peerAllowField, referrersField, switchField, type ProxyTrustSettings } from './fields.ts'
