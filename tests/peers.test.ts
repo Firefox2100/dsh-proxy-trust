@@ -1,9 +1,16 @@
 import net from 'node:net'
+import { rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { installPeerGate } from '../src/host/hooks/peers.ts'
 
 const servers: net.Server[] = []
-afterEach(() => { for (const server of servers.splice(0)) server.close() })
+const socketPaths: string[] = []
+afterEach(() => {
+  for (const server of servers.splice(0)) server.close()
+  for (const socketPath of socketPaths.splice(0)) rmSync(socketPath, { force: true })
+})
 
 async function listen(): Promise<{ server: net.Server; port: number; accepted: () => number }> {
   let count = 0
@@ -59,5 +66,27 @@ describe('installPeerGate', () => {
   })
   it('stays inactive on a web server of another shape', () => {
     expect(installPeerGate({}, { allow: () => ['10.0.0.0/8'], warn: vi.fn() })).toBeUndefined()
+  })
+  it('names an unknown peer when the socket carries no address', async () => {
+    const server = net.createServer((socket) => { socket.once('data', () => { socket.end('hi') }) })
+    servers.push(server)
+    const socketPath = process.platform === 'win32'
+      ? `\\\\.\\pipe\\dpt-peers-${String(process.pid)}`
+      : path.join(os.tmpdir(), `dpt-peers-${String(process.pid)}.sock`)
+    socketPaths.push(socketPath)
+    await new Promise<void>((resolve) => { server.listen(socketPath, resolve) })
+    const warn = vi.fn()
+    installPeerGate({ server }, { allow: () => ['10.0.0.0/8'], warn })
+    const received = await new Promise<string>((resolve) => {
+      const socket = net.connect(socketPath)
+      let data = ''
+      socket.on('connect', () => { socket.write('x') })
+      socket.on('data', (chunk) => { data += String(chunk) })
+      socket.on('error', () => { /* the gate destroys the socket */ })
+      socket.on('close', () => { resolve(data) })
+    })
+    expect(received).toBe('')
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(String(warn.mock.calls[0]?.[0])).toContain('an unknown address')
   })
 })

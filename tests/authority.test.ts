@@ -11,6 +11,10 @@ describe('normalizeAuthority', () => {
   it.each(['', 'https://app.example', 'app.example/ui', 'user@app.example', '*.example', 'a b', 'app.example?x=1', 'app.example#f'])('rejects %j', (entry) => {
     expect(normalizeAuthority(entry)).toBeUndefined()
   })
+  it('rejects text the URL parser cannot read as an authority', () => {
+    expect(normalizeAuthority('app.example:99999')).toBeUndefined()
+    expect(normalizeAuthority('[::1')).toBeUndefined()
+  })
 })
 
 describe('splitEntries / normalizeOrigin', () => {

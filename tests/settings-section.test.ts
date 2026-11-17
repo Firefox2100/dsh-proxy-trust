@@ -95,6 +95,22 @@ describe('ProxyTrustSection', () => {
     expect(result.tree).toBeTruthy()
     expect(result.edit).toHaveBeenCalled()
   })
+
+  it('writes a cleared switch as false', () => {
+    const result = render(state())
+    let handler: ((next: boolean) => void) | undefined
+    const find = (node: ReactNode): void => {
+      if (handler !== undefined || node === null || node === undefined || typeof node !== 'object') return
+      if (!isValidElement(node)) { Children.forEach(node, find); return }
+      const props = node.props as Record<string, unknown>
+      if (typeof props['onChange'] === 'function') { handler = props['onChange'] as (next: boolean) => void; return }
+      if (typeof node.type === 'function') { find((node.type as (p: Record<string, unknown>) => ReactNode)(props)); return }
+      Children.forEach(props['children'] as ReactNode, find)
+    }
+    find(result.tree)
+    handler?.(false)
+    expect(result.edit).toHaveBeenCalledWith('hostsAny', 'false')
+  })
 })
 
 describe('SectionBoundary', () => {

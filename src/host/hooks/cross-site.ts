@@ -26,7 +26,7 @@ export function isAllowedNavigation(request: TrustRequest, referrers: readonly s
   if (headerOf(headers, 'sec-fetch-mode') !== 'navigate' || headerOf(headers, 'sec-fetch-dest') !== 'document') return false
   let pathname: string
   try {
-    pathname = new URL(request.url ?? '/', 'http://dsh.invalid').pathname
+    pathname = new URL(request.url ?? '/', 'https://dsh.invalid').pathname
   } catch {
     return false
   }

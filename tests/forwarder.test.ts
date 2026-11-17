@@ -92,6 +92,23 @@ describe('Forwarder', () => {
     expect(await roundTrip(await connect(port), 'ok')).toBe('ok')
   })
 
+  it('falls back to the wildcard address when the address is left empty', async () => {
+    const { forwarder } = setup(await echoUpstream(), { address: '' })
+    await forwarder.sync()
+    expect(forwarder.listening?.address).toBe('0.0.0.0')
+    expect(await roundTrip(await connect(forwarder.listening!.port), 'x')).toBe('x')
+  })
+
+  it('logs a burst of refused connections once', async () => {
+    const { forwarder, warn } = setup(await echoUpstream(), { allow: ['10.0.0.0/8'] })
+    await forwarder.sync()
+    const port = forwarder.listening!.port
+    await closed(await connect(port))
+    await closed(await connect(port))
+    const refusals = warn.mock.calls.filter(call => String(call[0]).includes('refused'))
+    expect(refusals).toHaveLength(1)
+  })
+
   it('reopens on a changed port and closes when switched off, live', async () => {
     const { forwarder, settings } = setup(await echoUpstream())
     await forwarder.sync()
@@ -144,6 +161,46 @@ describe('Forwarder', () => {
     socket.resume()
     await closed(socket)
     expect(socket.destroyed).toBe(true)
+  })
+
+  it('warns instead of throwing when the settings cannot be read', async () => {
+    const warn = vi.fn()
+    const forwarder = new Forwarder({
+      settings: () => { throw new Error('the settings are unavailable') },
+      upstream: () => undefined,
+      warn,
+      info: vi.fn(),
+    })
+    await forwarder.sync()
+    expect(warn).toHaveBeenCalledWith('extra listener: the settings are unavailable')
+    expect(forwarder.listening).toBeUndefined()
+  })
+
+  it('picks a fallback when the listen address is not an IP address', async () => {
+    const warn = vi.fn()
+    const forwarder = new Forwarder({
+      settings: () => ({ enabled: true, address: 'app.example', port: 0, allow: [] }),
+      upstream: () => ({ host: '127.0.0.1', port: 9 }),
+      warn,
+      info: vi.fn(),
+    })
+    await forwarder.sync()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('app.example'))
+    expect(forwarder.listening).toBeUndefined()
+    await forwarder.dispose()
+  })
+
+  it('warns with a thrown value that is not an error', async () => {
+    const warn = vi.fn()
+    const failure = { toString: () => 'plain text' }
+    const forwarder = new Forwarder({
+      settings: () => { throw failure },
+      upstream: () => undefined,
+      warn,
+      info: vi.fn(),
+    })
+    await forwarder.sync()
+    expect(warn).toHaveBeenCalledWith('extra listener: plain text')
   })
 
   it('closes open connections on dispose', async () => {

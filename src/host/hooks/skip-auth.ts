@@ -21,7 +21,7 @@ interface Response {
  * @param response - the response to complete.
  */
 function connectRedirect(request: IndexRequest, response: Response): void {
-  const url = new URL(request.url ?? '/', 'http://dsh.invalid')
+  const url = new URL(request.url ?? '/', 'https://dsh.invalid')
   const declared = url.searchParams.getAll('interactions')
   const interactions = declared[0] ?? 'none'
   if (declared.length > 1 || (interactions !== 'answer' && interactions !== 'none')) {

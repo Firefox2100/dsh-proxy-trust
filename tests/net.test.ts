@@ -22,7 +22,7 @@ describe('normalizeCidr', () => {
   it('accepts addresses and ranges', () => {
     expect(normalizeCidr('10.0.0.0/8')).toBe('10.0.0.0/8')
     expect(normalizeCidr('FD00::/8')).toBe('fd00::/8')
-    expect(normalizeCidr('192.168.1.5')).toBe('192.168.1.5')
+    expect(normalizeCidr('192.0.2.5')).toBe('192.0.2.5')
   })
   it.each(['10.0.0.0/33', 'fd00::/129', '10.0.0.0/', 'host.example', '10.0.0.0/a'])('rejects %j', (entry) => {
     expect(normalizeCidr(entry)).toBeUndefined()
@@ -34,14 +34,18 @@ describe('isPeerAllowed', () => {
     expect(isPeerAllowed('203.0.113.7', [])).toBe(true)
   })
   it('matches ranges and single addresses, IPv4-mapped peers included', () => {
-    expect(isPeerAllowed('192.168.1.40', ['192.168.1.0/24'])).toBe(true)
-    expect(isPeerAllowed('192.168.2.40', ['192.168.1.0/24'])).toBe(false)
-    expect(isPeerAllowed('::ffff:192.168.1.40', ['192.168.1.0/24'])).toBe(true)
+    expect(isPeerAllowed('192.0.2.40', ['192.0.2.0/24'])).toBe(true)
+    expect(isPeerAllowed('198.51.100.40', ['192.0.2.0/24'])).toBe(false)
+    expect(isPeerAllowed('::ffff:192.0.2.40', ['192.0.2.0/24'])).toBe(true)
     expect(isPeerAllowed('100.86.189.45', ['100.64.0.0/10', '10.0.0.1'])).toBe(true)
     expect(isPeerAllowed('fd00::5', ['fd00::/8'])).toBe(true)
   })
   it('allows no one when no entry is valid, or the peer is unknown', () => {
     expect(isPeerAllowed('127.0.0.1', ['not-an-address'])).toBe(false)
     expect(isPeerAllowed(undefined, ['10.0.0.0/8'])).toBe(false)
+    expect(isPeerAllowed('not-an-address', ['10.0.0.0/8'])).toBe(false)
+  })
+  it('drops a zone id before matching a link-local peer', () => {
+    expect(isPeerAllowed('fe80::1%eth0', ['fe80::/10'])).toBe(true)
   })
 })

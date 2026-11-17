@@ -12,7 +12,7 @@ import { installCrossSite } from './hooks/cross-site.ts'
 import { installPeerGate, PEER_GATE_UNAVAILABLE } from './hooks/peers.ts'
 import { installHosts } from './hooks/hosts.ts'
 import { installSkipAuth } from './hooks/skip-auth.ts'
-import type { ConnectionInternals } from './hooks/shape.ts'
+import type { ConnectionInternals, Uninstall } from './hooks/shape.ts'
 
 export const name = 'dsh-proxy-trust'
 
@@ -67,11 +67,10 @@ export function apply(ctx: Context, config: Config): void {
       ctx.logger.warn(`dsh-proxy-trust: ${message}`)
       console.warn(`dsh-proxy-trust: ${message}`)
     }
-    const installed = [
-      installHosts(svc, { any: () => config.hostsAny.get(), hosts: () => config.hosts.get() }, warn),
-      installSkipAuth(svc, () => config.skipAuth.get(), warn),
-      installCrossSite(svc, { enabled: () => config.crossSiteNavigation.get(), referrers: () => config.crossSiteReferrers.get() }, warn),
-    ]
+    const installed: (Uninstall | undefined)[] = []
+    installed.push(installHosts(svc, { any: () => config.hostsAny.get(), hosts: () => config.hosts.get() }, warn))
+    installed.push(installSkipAuth(svc, () => config.skipAuth.get(), warn))
+    installed.push(installCrossSite(svc, { enabled: () => config.crossSiteNavigation.get(), referrers: () => config.crossSiteReferrers.get() }, warn))
     c.effect(() => () => {
       for (const uninstall of installed.reverse()) uninstall?.()
     }, 'dsh-proxy-trust: connection hooks')

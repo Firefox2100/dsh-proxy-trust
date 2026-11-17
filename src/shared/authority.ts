@@ -7,15 +7,14 @@
 export function normalizeAuthority(entry: string): string | undefined {
   const text = entry.trim().toLowerCase()
   if (text === '' || /[\s/\\@?#*]/.test(text)) return undefined
-  let url: URL
   try {
-    url = new URL(`http://${text}`)
+    // Parse only to reject text that is not a host or host:port at all; the separator check
+    // above already rules out userinfo, paths, queries and fragments.
+    // A default port disappears from `url.host`; the typed text is what the user meant, so keep it.
+    new URL(`http://${text}`)
   } catch {
     return undefined
   }
-  if (url.username !== '' || url.password !== '' || url.pathname !== '/' || url.search !== '' || url.hash !== '') return undefined
-  // A default port disappears from `url.host`; the typed text is what the user meant, so keep it.
-  if (url.hostname === '') return undefined
   return text
 }
 

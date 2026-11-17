@@ -54,4 +54,14 @@ describe('installHosts', () => {
     expect(installHosts({}, { any: () => true, hosts: () => [] }, warn)).toBeUndefined()
     expect(warn).toHaveBeenCalledOnce()
   })
+  it('leaves a list replaced by someone else alone and restores an inherited flag as its own', () => {
+    const svc = Object.create({ allowsRemoteAuthorities: false }) as Record<string, unknown>
+    svc['trustedHosts'] = []
+    const uninstall = installHosts(svc, { any: () => false, hosts: () => [] }, vi.fn())
+    expect(Object.hasOwn(svc, 'allowsRemoteAuthorities')).toBe(true)
+    svc['trustedHosts'] = ['other.example']
+    uninstall?.()
+    expect(svc['trustedHosts']).toEqual(['other.example'])
+    expect(svc['allowsRemoteAuthorities']).toBe(false)
+  })
 })

@@ -31,6 +31,13 @@ describe('isAllowedNavigation', () => {
     const request = { method: 'GET', url: '/', headers: new Headers({ 'sec-fetch-site': 'cross-site', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' }) }
     expect(isAllowedNavigation(request, [])).toBe(true)
   })
+  it('refuses a request whose URL cannot be parsed', () => {
+    expect(isAllowedNavigation({ ...nav(), url: 'http://[::1' }, [])).toBe(false)
+  })
+  it('treats a request without a URL as the root page', () => {
+    const request = { method: 'GET', headers: { 'sec-fetch-site': 'cross-site', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' } }
+    expect(isAllowedNavigation(request, [])).toBe(true)
+  })
 })
 
 describe('installCrossSite', () => {
@@ -58,9 +65,34 @@ describe('installCrossSite', () => {
     expect(Object.hasOwn(svc, 'isTrusted')).toBe(false)
     expect(typeof svc['isTrusted']).toBe('function')
   })
+  it('leaves a trust check replaced by someone else alone', () => {
+    const { svc } = service()
+    const uninstall = installCrossSite(svc, { enabled: () => true, referrers: () => [] }, vi.fn())
+    const replacement = (): boolean => true
+    svc['isTrusted'] = replacement
+    uninstall?.()
+    expect(svc['isTrusted']).toBe(replacement)
+  })
   it('warns and stays inactive on an unknown shape', () => {
     const warn = vi.fn()
     expect(installCrossSite({}, { enabled: () => true, referrers: () => [] }, warn)).toBeUndefined()
     expect(warn).toHaveBeenCalledOnce()
+  })
+  it('strips the marker from Fetch headers on a copy', () => {
+    const seen: unknown[] = []
+    const svc: Record<string, unknown> = {}
+    Object.setPrototypeOf(svc, {
+      isTrusted(request: { headers: Headers | Record<string, string> }) {
+        const headers = request.headers
+        seen.push(headers instanceof Headers ? headers.get('sec-fetch-site') : headers['sec-fetch-site'])
+        return true
+      },
+    })
+    installCrossSite(svc, { enabled: () => true, referrers: () => [] }, vi.fn())
+    const headers = new Headers({ 'sec-fetch-site': 'cross-site', 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' })
+    const trusted = svc['isTrusted'] as (request: unknown) => boolean
+    expect(trusted.call(svc, { method: 'GET', url: '/', headers })).toBe(true)
+    expect(seen).toEqual(['none'])
+    expect(headers.get('sec-fetch-site')).toBe('cross-site')
   })
 })
